@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#080a0f">
+<title>CHRONOS • Çok İşlevli Dönüştürücü & Zaman</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: { colors: { brand: {
+    dark:'#080a0f', card:'#0f131a', innerCard:'#131822',
+    input:'#0b0e14', accent:'#00e5b7', blue:'#00b4d8'
+  }}}}
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#080a0f;color:#F0F0F5;padding:24px 16px;min-height:100vh;-webkit-font-smoothing:antialiased}
+.emerald-glow-box{border:1px solid #00e5b7!important;box-shadow:0 0 15px rgba(0,229,183,.15),inset 0 0 15px rgba(0,229,183,.04)}
+.emerald-glow-text{color:#00e5b7;text-shadow:0 0 12px rgba(0,229,183,.4)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#080a0f}
+::-webkit-scrollbar-thumb{background:#1f2937;border-radius:4px}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.cal-day{aspect-ratio:1/1;background:rgba(0,0,0,.25);border:1px solid transparent;border-radius:8px;padding:6px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;font-size:12px}
+.cal-day:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.05)}
+.cal-day.today{border-color:#00e5b7;background:rgba(0,229,183,.08)}
+.cal-day.empty{background:transparent;cursor:default;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="max-w-4xl mx-auto w-full">
+
+<!-- HEADER -->
+<header class="relative flex flex-col items-center mb-6">
+  <div class="absolute right-0 top-0">
+    <div class="relative">
+      <select id="langSelect" class="bg-brand-card border border-gray-800 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-300 appearance-none cursor-pointer pr-7 focus:outline-none focus:border-brand-accent">
+        <option value="tr">🌐 Türkçe</option>
+        <option value="en">🌐 English</option>
+        <option value="de">🌐 Deutsch</option>
+        <option value="es">🌐 Español</option>
+      </select>
+      <i class="fa-solid fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 pointer-events-none"></i>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-center mt-4 mb-6">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-full border border-brand-blue/70 flex items-center justify-center shadow-[0_0_12px_rgba(0,180,216,0.3)]">
+        <i class="fa-regular fa-clock text-brand-blue"></i>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-widest text-white">CHRONO<span class="text-brand-blue">S</span></h1>
+    </div>
+    <span id="slogan" class="text-[10px] font-bold tracking-[3px] text-gray-400 mt-1 uppercase">ZAMANIN ÖTESİNDE</span>
+  </div>
+
+  <nav class="flex flex-wrap justify-center items-center bg-brand-card p-1.5 rounded-2xl sm:rounded-full border border-gray-800 mb-6 gap-1 max-w-full">
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="calc"><i class="fa-regular fa-clock"></i><span data-i18n="tab_time">Zaman</span></button>
+    <button class="app-tab active flex items-center space-x-1.5 bg-gray-800 text-brand-accent px-3.5 py-2 rounded-full text-xs font-semibold" data-app="currency"><i class="fa-solid fa-rotate text-brand-accent"></i><span data-i18n="tab_currency">Döviz</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="weight"><i class="fa-solid fa-weight-hanging"></i><span data-i18n="tab_weight">Ağırlık</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="volume"><i class="fa-solid fa-flask"></i><span data-i18n="tab_volume">Hacim</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="ratio"><i class="fa-solid fa-percent"></i><span data-i18n="tab_ratio">Oran</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="calculator"><i class="fa-solid fa-calculator"></i><span data-i18n="tab_calculator">Hesap Mak.</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="calendar"><i class="fa-regular fa-calendar-days"></i><span data-i18n="tab_calendar">Takvim</span></button>
+    <button class="app-tab flex items-center space-x-1.5 text-gray-400 hover:text-white px-3.5 py-2 rounded-full text-xs font-semibold transition-all" data-app="agenda"><i class="fa-regular fa-bookmark"></i><span data-i18n="tab_agenda">Ajanda</span></button>
+  </nav>
+</header>
+
+<!-- PANEL: DÖVİZ -->
+<div class="panel active" id="panel-currency">
+  <main class="bg-brand-card border border-gray-800/80 rounded-2xl p-5 sm:p-7 shadow-2xl">
+    <div class="mb-5">
+      <h2 class="text-xl sm:text-2xl font-bold text-white mb-1" data-i18n="curr_title">Döviz Çevirici</h2>
+      <p class="text-xs sm:text-sm text-gray-400" data-i18n="curr_sub">Bir para biriminin başka bir ülkede ne kadar ettiğini görün.</p>
+    </div>
+
+    <div class="space-y-4 mb-6">
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_amount">TUTAR</label>
+        <input type="number" id="amountInput" value="1" min="0" step="any" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-lg font-bold text-white focus:outline-none focus:border-brand-accent">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] gap-3 items-end">
+        <div>
+          <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_from_curr">BU PARA BİRİMİNDEN</label>
+          <select id="fromCurrency" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3.5 text-sm font-semibold text-gray-200 focus:outline-none focus:border-brand-accent cursor-pointer"></select>
+        </div>
+        <div class="flex justify-center my-1 md:my-0">
+          <button id="swapBtn" title="Değiştir" class="w-12 h-12 rounded-xl border border-gray-800 bg-brand-input hover:bg-gray-800 flex items-center justify-center text-gray-300 hover:text-brand-accent transition-all active:scale-95">
+            <i class="fa-solid fa-arrow-right-arrow-left text-sm"></i>
+          </button>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_to_curr">BU PARA BİRİMİNE</label>
+          <select id="toCurrency" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3.5 text-sm font-semibold text-gray-200 focus:outline-none focus:border-brand-accent cursor-pointer"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="emerald-glow-box bg-brand-innerCard rounded-2xl p-6 mb-7 text-center">
+      <div class="text-[11px] font-bold text-gray-400 tracking-wider uppercase mb-1">
+        <span id="baseAmountLabel">$1,00</span> <span data-i18n="lbl_equals">EŞİTTİR</span>
+      </div>
+      <div id="resultValue" class="text-4xl sm:text-5xl font-black text-brand-accent emerald-glow-text my-2 tracking-tight">₺50,17</div>
+      <div id="targetCurrencyName" class="text-xs font-extrabold text-gray-300 uppercase tracking-widest mb-4">TÜRK LİRASI</div>
+      <div class="w-full border-t border-gray-800/80 my-4"></div>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs font-bold text-gray-300">
+        <div id="rateDirect" class="bg-brand-dark/60 px-3.5 py-1.5 rounded-lg border border-gray-800">$1,00 = <span class="text-brand-accent">₺50,17</span></div>
+        <div id="rateInverse" class="bg-brand-dark/60 px-3.5 py-1.5 rounded-lg border border-gray-800">₺1,00 = <span class="text-brand-accent">$0,019931</span></div>
+      </div>
+    </div>
+
+    <h3 id="otherCurrenciesTitle" class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">$1,00 DİĞER ÜLKELERDE</h3>
+    <div id="popularCurrenciesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+
+    <div class="text-center mt-6 pt-4 border-t border-gray-800/50">
+      <p id="timestampText" class="text-[11px] text-gray-500 font-medium">Kurlar güncellendi: --</p>
+    </div>
+  </main>
+</div>
+
+<!-- PANEL: ZAMAN -->
+<div class="panel hidden" id="panel-calc">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="time_title">Zaman Farkı</h2>
+    <p class="text-xs text-gray-400 mb-6" data-i18n="time_sub">İki tarih arasındaki farkı hesaplayın.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_start_date">BAŞLANGIÇ</label>
+        <input type="datetime-local" id="dateStart" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-blue">
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_end_date">BİTİŞ</label>
+        <input type="datetime-local" id="dateEnd" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-blue">
+      </div>
+    </div>
+    <div class="text-center mb-6">
+      <button id="btnSwapTime" class="px-4 py-2 border border-gray-800 rounded-full text-xs text-gray-400 hover:text-white hover:border-gray-600 transition-all">
+        <i class="fa-solid fa-arrows-rotate mr-1"></i><span data-i18n="btn_swap_dates">Tarihleri Değiştir</span>
+      </button>
+    </div>
+    <div class="bg-brand-innerCard border border-gray-800 rounded-xl p-6 text-center">
+      <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2" data-i18n="lbl_calc_diff">HESAPLANAN FARK</div>
+      <div id="timeResultValue" class="text-4xl font-extrabold text-brand-blue mb-1">—</div>
+      <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4" data-i18n="unit_second">saniye</div>
+      <div class="grid grid-cols-3 gap-2 pt-4 border-t border-gray-800 text-center">
+        <div><div id="dDays" class="text-base font-bold text-white">0</div><div class="text-[10px] text-gray-500 uppercase" data-i18n="unit_day">Gün</div></div>
+        <div><div id="dHours" class="text-base font-bold text-white">0</div><div class="text-[10px] text-gray-500 uppercase" data-i18n="unit_hour">Saat</div></div>
+        <div><div id="dMinutes" class="text-base font-bold text-white">0</div><div class="text-[10px] text-gray-500 uppercase" data-i18n="unit_min">Dakika</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: AĞIRLIK -->
+<div class="panel hidden" id="panel-weight">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="weight_title">Ağırlık Hesaplama</h2>
+    <p class="text-xs text-gray-400 mb-6" data-i18n="weight_sub">Ağırlık birimlerini anında dönüştürün.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end mb-6">
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_value">DEĞER</label>
+        <input type="number" id="weightVal" value="1" step="any" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-base font-bold text-white focus:outline-none focus:border-brand-accent">
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_from_unit">GİRİŞ</label>
+        <select id="weightFrom" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+          <option value="kg">Kilogram (kg)</option>
+          <option value="g">Gram (g)</option>
+          <option value="mg">Miligram (mg)</option>
+          <option value="t">Ton (t)</option>
+          <option value="lb">Libre (lb)</option>
+          <option value="oz">ONS (oz)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_to_unit">HEDEF</label>
+        <select id="weightTo" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+          <option value="g" selected>Gram (g)</option>
+          <option value="kg">Kilogram (kg)</option>
+          <option value="mg">Miligram (mg)</option>
+          <option value="t">Ton (t)</option>
+          <option value="lb">Libre (lb)</option>
+          <option value="oz">ONS (oz)</option>
+        </select>
+      </div>
+    </div>
+    <div class="bg-brand-innerCard border border-gray-800 rounded-xl p-6 text-center">
+      <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2" data-i18n="lbl_result">SONUÇ</div>
+      <div id="weightResult" class="text-3xl sm:text-4xl font-extrabold text-brand-accent mb-1">1000 g</div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: HACİM -->
+<div class="panel hidden" id="panel-volume">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="volume_title">Hacim Hesaplama</h2>
+    <p class="text-xs text-gray-400 mb-6" data-i18n="volume_sub">Sıvı ve hacim birimlerini dönüştürün.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end mb-6">
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_value">DEĞER</label>
+        <input type="number" id="volVal" value="1" step="any" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-base font-bold text-white focus:outline-none focus:border-brand-accent">
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_from_unit">GİRİŞ</label>
+        <select id="volFrom" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+          <option value="l">Litre (L)</option>
+          <option value="ml">Mililitre (mL)</option>
+          <option value="m3">Metreküp (m³)</option>
+          <option value="gal">Galon (gal)</option>
+          <option value="floz">Sıvı ONS (fl oz)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2" data-i18n="lbl_to_unit">HEDEF</label>
+        <select id="volTo" class="w-full bg-brand-input border border-gray-800 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+          <option value="ml" selected>Mililitre (mL)</option>
+          <option value="l">Litre (L)</option>
+          <option value="m3">Metreküp (m³)</option>
+          <option value="gal">Galon (gal)</option>
+          <option value="floz">Sıvı ONS (fl oz)</option>
+        </select>
+      </div>
+    </div>
+    <div class="bg-brand-innerCard border border-gray-800 rounded-xl p-6 text-center">
+      <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2" data-i18n="lbl_result">SONUÇ</div>
+      <div id="volResult" class="text-3xl sm:text-4xl font-extrabold text-brand-blue mb-1">1000 mL</div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: ORAN -->
+<div class="panel hidden" id="panel-ratio">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="ratio_title">Oran & Yüzde</h2>
+    <p class="text-xs text-gray-400 mb-6" data-i18n="ratio_sub">Yüzde ve değişim hesaplamaları.</p>
+    <div class="space-y-6">
+      <div class="bg-brand-innerCard p-4 rounded-xl border border-gray-800">
+        <label class="block text-xs font-bold text-brand-accent mb-3 uppercase tracking-wider" data-i18n="ratio_opt1">1. Sayının Yüzdesi</label>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-300">
+          <input type="number" id="ratioA1" value="100" class="w-24 bg-brand-input border border-gray-800 rounded-lg p-2 text-white font-bold">
+          <span>sayısının %</span>
+          <input type="number" id="ratioP1" value="20" class="w-20 bg-brand-input border border-gray-800 rounded-lg p-2 text-white font-bold">
+          <span>=</span>
+          <span id="ratioRes1" class="text-lg font-extrabold text-brand-accent">20</span>
+        </div>
+      </div>
+      <div class="bg-brand-innerCard p-4 rounded-xl border border-gray-800">
+        <label class="block text-xs font-bold text-brand-accent mb-3 uppercase tracking-wider" data-i18n="ratio_opt2">2. Yüzde Değişim</label>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-300">
+          <input type="number" id="ratioV1" value="100" class="w-24 bg-brand-input border border-gray-800 rounded-lg p-2 text-white font-bold">
+          <span>→</span>
+          <input type="number" id="ratioV2" value="150" class="w-24 bg-brand-input border border-gray-800 rounded-lg p-2 text-white font-bold">
+          <span>=</span>
+          <span id="ratioRes2" class="text-lg font-extrabold text-brand-accent">+50%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: HESAP MAKİNESİ -->
+<div class="panel hidden" id="panel-calculator">
+  <div class="bg-brand-card border border-gray-800/80 rounded-2xl p-5 sm:p-7 shadow-2xl max-w-md mx-auto">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="calc_math_title">Hesap Makinesi</h2>
+    <p class="text-xs text-gray-400 mb-4" data-i18n="calc_math_sub">Temel matematiksel işlemler.</p>
+    <div class="bg-brand-input border border-gray-800 rounded-2xl p-4 mb-4 text-right flex flex-col justify-end min-h-[90px]">
+      <div id="mathCalcHistory" class="text-xs text-gray-500 font-mono min-h-[18px] overflow-hidden text-ellipsis whitespace-nowrap mb-1"></div>
+      <div id="mathCalcDisplay" class="text-3xl sm:text-4xl font-extrabold text-brand-accent font-mono overflow-x-auto whitespace-nowrap">0</div>
+    </div>
+    <div class="grid grid-cols-4 gap-2 text-sm font-bold font-mono">
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-red-400 rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-action="clear">C</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-accent rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val="(">(</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-accent rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val=")">)</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-blue rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val="/">÷</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="7">7</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="8">8</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="9">9</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-blue rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val="*">×</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="4">4</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="5">5</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="6">6</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-blue rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val="-">-</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="1">1</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="2">2</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="3">3</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-brand-blue rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-val="+">+</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val="0">0</button>
+      <button class="math-btn bg-brand-dark/80 hover:bg-gray-800 text-gray-200 rounded-xl p-3.5 active:scale-95 border border-gray-800" data-val=".">.</button>
+      <button class="math-btn bg-gray-800/80 hover:bg-gray-700 text-gray-400 rounded-xl p-3.5 active:scale-95 border border-gray-700/50" data-action="backspace">⌫</button>
+      <button class="math-btn bg-brand-accent text-slate-950 hover:bg-emerald-400 rounded-xl p-3.5 active:scale-95 font-bold shadow-lg shadow-brand-accent/20" data-action="equals">=</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: TAKVİM -->
+<div class="panel hidden" id="panel-calendar">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-white" data-i18n="cal_title">Takvim</h2>
+      <div class="flex items-center gap-2 text-sm">
+        <button id="calPrev" class="w-8 h-8 rounded-lg bg-brand-input hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-brand-accent"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <span id="calLabel" class="font-bold text-white min-w-[120px] text-center"></span>
+        <button id="calNext" class="w-8 h-8 rounded-lg bg-brand-input hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-brand-accent"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+      </div>
+    </div>
+    <div class="grid grid-cols-7 gap-2 text-center text-[11px] font-bold text-gray-400 mb-2">
+      <div>Pzt</div><div>Sal</div><div>Çar</div><div>Per</div><div>Cum</div><div>Cmt</div><div>Paz</div>
+    </div>
+    <div id="calGrid" class="grid grid-cols-7 gap-2"></div>
+  </div>
+</div>
+
+<!-- PANEL: AJANDA -->
+<div class="panel hidden" id="panel-agenda">
+  <div class="bg-brand-card border border-gray-800 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-xl font-bold text-white mb-1" data-i18n="agenda_title">Ajanda</h2>
+    <p class="text-xs text-gray-400 mb-4" data-i18n="agenda_sub">Notlarınızı kaydedin.</p>
+    <div class="grid grid-cols-1 md:grid-cols-[260px,1fr] gap-4">
+      <aside class="bg-brand-innerCard rounded-xl p-3 flex flex-col h-[400px]">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-bold text-white">Notlar</h3>
+          <button id="btnNewNote" class="bg-brand-accent text-slate-950 font-bold px-3 py-1 rounded-lg text-xs">+ Yeni</button>
+        </div>
+        <div id="notesList" class="flex-1 overflow-y-auto space-y-1 pr-1"></div>
+      </aside>
+      <section class="flex flex-col h-[400px]">
+        <input type="date" id="noteDate" class="bg-brand-input border border-gray-800 rounded-lg px-2 py-1 text-xs text-gray-300 mb-2 self-start">
+        <input type="text" id="noteTitle" placeholder="Başlık..." class="w-full bg-transparent border-b border-gray-800 pb-2 mb-2 text-lg font-bold text-white focus:outline-none focus:border-brand-accent">
+        <textarea id="noteContent" placeholder="Düşüncelerinizi yazın..." class="w-full flex-1 bg-brand-input border border-gray-800 rounded-lg p-3 text-sm text-gray-200 resize-none focus:outline-none focus:border-brand-accent"></textarea>
+        <div class="flex justify-between items-center pt-2 mt-2">
+          <span id="noteMeta" class="text-[10px] text-gray-500">Kaydedilmedi</span>
+          <button id="btnDelete" class="text-red-400 hover:text-red-300 text-xs font-semibold px-2 py-1">Sil</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+</div>
+<footer class="text-center py-4 text-xs font-semibold text-gray-600 tracking-wider">© 2026 CHRONOS • Tasarım & Geliştirme</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. TAB SWITCHING  (en kritik kısım)
+   ============================================================ */
+const tabs = document.querySelectorAll('.app-tab');
+const panels = document.querySelectorAll('.panel');
+const $ = id => document.getElementById(id);
+const locales = {tr:'tr-TR',en:'en-US',de:'de-DE',es:'es-ES'};
+const words = {
+tr:{slogan:'ZAMANIN ÖTESİNDE',tab_time:'Zaman',tab_currency:'Döviz',tab_weight:'Ağırlık',tab_volume:'Hacim',tab_ratio:'Oran',tab_calculator:'Hesap Mak.',tab_calendar:'Takvim',tab_agenda:'Ajanda',curr_title:'Döviz Çevirici',curr_sub:'Bir para biriminin başka bir ülkede ne kadar ettiğini görün.',lbl_amount:'TUTAR',lbl_from_curr:'BU PARA BİRİMİNDEN',lbl_to_curr:'BU PARA BİRİMİNE',lbl_equals:'EŞİTTİR',time_title:'Zaman Farkı',time_sub:'İki tarih arasındaki farkı hesaplayın.',lbl_start_date:'BAŞLANGIÇ',lbl_end_date:'BİTİŞ',btn_swap_dates:'Tarihleri Değiştir',lbl_calc_diff:'HESAPLANAN FARK',unit_second:'saniye',unit_day:'Gün',unit_hour:'Saat',unit_min:'Dakika',weight_title:'Ağırlık Hesaplama',weight_sub:'Ağırlık birimlerini anında dönüştürün.',volume_title:'Hacim Hesaplama',volume_sub:'Sıvı ve hacim birimlerini dönüştürün.',lbl_value:'DEĞER',lbl_from_unit:'GİRİŞ',lbl_to_unit:'HEDEF',lbl_result:'SONUÇ',ratio_title:'Oran & Yüzde',ratio_sub:'Yüzde ve değişim hesaplamaları.',ratio_opt1:'1. Sayının Yüzdesi',ratio_opt2:'2. Yüzde Değişim',calc_math_title:'Hesap Makinesi',calc_math_sub:'Temel matematiksel işlemler.',cal_title:'Takvim',agenda_title:'Ajanda',agenda_sub:'Notlarınızı kaydedin.'},
+en:{slogan:'BEYOND TIME',tab_time:'Time',tab_currency:'Currency',tab_weight:'Weight',tab_volume:'Volume',tab_ratio:'Ratio',tab_calculator:'Calculator',tab_calendar:'Calendar',tab_agenda:'Agenda',curr_title:'Currency converter',curr_sub:'See the value of one currency in another.',lbl_amount:'AMOUNT',lbl_from_curr:'FROM',lbl_to_curr:'TO',lbl_equals:'EQUALS',time_title:'Time difference',time_sub:'Calculate the difference between two dates.',lbl_start_date:'START',lbl_end_date:'END',btn_swap_dates:'Swap dates',lbl_calc_diff:'CALCULATED DIFFERENCE',unit_second:'seconds',unit_day:'Days',unit_hour:'Hours',unit_min:'Minutes',weight_title:'Weight conversion',weight_sub:'Convert weight units instantly.',volume_title:'Volume conversion',volume_sub:'Convert liquid and volume units.',lbl_value:'VALUE',lbl_from_unit:'FROM',lbl_to_unit:'TO',lbl_result:'RESULT',ratio_title:'Ratio & percentage',ratio_sub:'Percentage and change calculations.',ratio_opt1:'1. Percentage of a number',ratio_opt2:'2. Percentage change',calc_math_title:'Calculator',calc_math_sub:'Basic mathematical operations.',cal_title:'Calendar',agenda_title:'Agenda',agenda_sub:'Save your notes.'},
+de:{slogan:'JENSEITS DER ZEIT',tab_time:'Zeit',tab_currency:'Währung',tab_weight:'Gewicht',tab_volume:'Volumen',tab_ratio:'Prozent',tab_calculator:'Rechner',tab_calendar:'Kalender',tab_agenda:'Notizen',curr_title:'Währungsrechner',curr_sub:'Sehen Sie den Wert einer Währung in einer anderen.',lbl_amount:'BETRAG',lbl_from_curr:'VON',lbl_to_curr:'IN',lbl_equals:'ENTSPRICHT',time_title:'Zeitunterschied',time_sub:'Berechnen Sie den Unterschied zwischen zwei Zeitpunkten.',lbl_start_date:'START',lbl_end_date:'ENDE',btn_swap_dates:'Daten tauschen',lbl_calc_diff:'BERECHNETER UNTERSCHIED',unit_second:'Sekunden',unit_day:'Tage',unit_hour:'Stunden',unit_min:'Minuten',weight_title:'Gewicht umrechnen',weight_sub:'Gewichtseinheiten sofort umrechnen.',volume_title:'Volumen umrechnen',volume_sub:'Flüssigkeits- und Volumeneinheiten umrechnen.',lbl_value:'WERT',lbl_from_unit:'VON',lbl_to_unit:'NACH',lbl_result:'ERGEBNIS',ratio_title:'Verhältnis & Prozent',ratio_sub:'Prozent- und Änderungsberechnungen.',ratio_opt1:'1. Prozent eines Werts',ratio_opt2:'2. Prozentuale Änderung',calc_math_title:'Taschenrechner',calc_math_sub:'Grundlegende mathematische Operationen.',cal_title:'Kalender',agenda_title:'Notizen',agenda_sub:'Notizen speichern.'},
+es:{slogan:'MÁS ALLÁ DEL TIEMPO',tab_time:'Tiempo',tab_currency:'Moneda',tab_weight:'Peso',tab_volume:'Volumen',tab_ratio:'Porcentaje',tab_calculator:'Calculadora',tab_calendar:'Calendario',tab_agenda:'Agenda',curr_title:'Conversor de moneda',curr_sub:'Consulta el valor de una moneda en otra.',lbl_amount:'CANTIDAD',lbl_from_curr:'DE',lbl_to_curr:'A',lbl_equals:'EQUIVALE A',time_title:'Diferencia de tiempo',time_sub:'Calcula la diferencia entre dos fechas.',lbl_start_date:'INICIO',lbl_end_date:'FIN',btn_swap_dates:'Intercambiar fechas',lbl_calc_diff:'DIFERENCIA CALCULADA',unit_second:'segundos',unit_day:'Días',unit_hour:'Horas',unit_min:'Minutos',weight_title:'Conversión de peso',weight_sub:'Convierte unidades de peso al instante.',volume_title:'Conversión de volumen',volume_sub:'Convierte unidades de líquido y volumen.',lbl_value:'VALOR',lbl_from_unit:'DE',lbl_to_unit:'A',lbl_result:'RESULTADO',ratio_title:'Proporción y porcentaje',ratio_sub:'Cálculos de porcentaje y cambio.',ratio_opt1:'1. Porcentaje de un número',ratio_opt2:'2. Cambio porcentual',calc_math_title:'Calculadora',calc_math_sub:'Operaciones matemáticas básicas.',cal_title:'Calendario',agenda_title:'Agenda',agenda_sub:'Guarda tus notas.'}
+};
+let lang='tr', rates=null, ratesDate=null, month=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+let notes={}, selectedNote=null, saveTimer=null, storageAvailable=true, expression='', justCalculated=false;
+const fmt=(n,d=2)=>new Intl.NumberFormat(locales[lang],{maximumFractionDigits:d}).format(n);
+function setLanguage(value){
+  lang=words[value]?value:'tr'; document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(node=>{if(words[lang][node.dataset.i18n])node.textContent=words[lang][node.dataset.i18n];});
+  $('slogan').textContent=words[lang].slogan; $('langSelect').value=lang; renderCalendar(); renderNotes();
+  if(rates){fillCurrencyOptions();updateCurrency();}
+}
+function showPanel(name){
+  tabs.forEach(tab=>{const on=tab.dataset.app===name;tab.classList.toggle('active',on);tab.classList.toggle('bg-gray-800',on);tab.classList.toggle('text-brand-accent',on);tab.classList.toggle('text-gray-400',!on);const icon=tab.querySelector('i');if(icon)icon.classList.toggle('text-brand-accent',on&&name==='currency');});
+  panels.forEach(panel=>{const on=panel.id===`panel-${name}`;panel.classList.toggle('active',on);panel.classList.toggle('hidden',!on);});
+}
+tabs.forEach(tab=>tab.addEventListener('click',()=>showPanel(tab.dataset.app)));
+$('langSelect').addEventListener('change',event=>setLanguage(event.target.value));
+function localDateTime(date){return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);}
+function updateTime(){
+  const a=new Date($('dateStart').value).getTime(),b=new Date($('dateEnd').value).getTime();
+  if(!Number.isFinite(a)||!Number.isFinite(b)){['timeResultValue','dDays','dHours','dMinutes'].forEach(id=>$(id).textContent='—');return;}
+  const seconds=Math.floor(Math.abs(b-a)/1000);
+  $('timeResultValue').textContent=fmt(seconds,0);$('dDays').textContent=fmt(Math.floor(seconds/86400),0);
+  $('dHours').textContent=fmt(Math.floor(seconds%86400/3600),0);$('dMinutes').textContent=fmt(Math.floor(seconds%3600/60),0);
+}
+['dateStart','dateEnd'].forEach(id=>$(id).addEventListener('input',updateTime));
+$('btnSwapTime').addEventListener('click',()=>{const a=$('dateStart').value;$('dateStart').value=$('dateEnd').value;$('dateEnd').value=a;updateTime();});
+const now=new Date();$('dateStart').value=localDateTime(now);$('dateEnd').value=localDateTime(new Date(now.getTime()+3600000));updateTime();
+const wf={kg:1,g:.001,mg:.000001,t:1000,lb:.45359237,oz:.028349523125};
+function updateWeight(){const n=Number($('weightVal').value);if(!Number.isFinite(n)){$('weightResult').textContent='—';return;}const u=$('weightTo').value;$('weightResult').textContent=`${fmt(n*wf[$('weightFrom').value]/wf[u],8)} ${u}`;}
+['weightVal','weightFrom','weightTo'].forEach(id=>$(id).addEventListener('input',updateWeight));['weightFrom','weightTo'].forEach(id=>$(id).addEventListener('change',updateWeight));updateWeight();
+const vf={l:1,ml:.001,m3:1000,gal:3.785411784,floz:.0295735295625},vs={l:'L',ml:'mL',m3:'m³',gal:'gal',floz:'fl oz'};
+function updateVolume(){const n=Number($('volVal').value);if(!Number.isFinite(n)){$('volResult').textContent='—';return;}const u=$('volTo').value;$('volResult').textContent=`${fmt(n*vf[$('volFrom').value]/vf[u],8)} ${vs[u]}`;}
+['volVal','volFrom','volTo'].forEach(id=>$(id).addEventListener('input',updateVolume));['volFrom','volTo'].forEach(id=>$(id).addEventListener('change',updateVolume));updateVolume();
+function updateRatio(){
+  const a=Number($('ratioA1').value),p=Number($('ratioP1').value);
+  $('ratioRes1').textContent=Number.isFinite(a)&&Number.isFinite(p)?fmt(a*p/100,8):'—';
+  const b=Number($('ratioV1').value),c=Number($('ratioV2').value);
+  if(!Number.isFinite(b)||!Number.isFinite(c)||b===0)$('ratioRes2').textContent=b===0&&c===0?'0%':'—';
+  else{const change=(c-b)/Math.abs(b)*100;$('ratioRes2').textContent=`${change>0?'+':''}${fmt(change,6)}%`;}
+}
+['ratioA1','ratioP1','ratioV1','ratioV2'].forEach(id=>$(id).addEventListener('input',updateRatio));updateRatio();
+function evaluate(source){
+  const t=source.match(/\d*\.?\d+|[()+\-*/]/g)||[];if(t.join('')!==source.replace(/\s+/g,''))throw Error('Invalid expression');let i=0;
+  function primary(){const x=t[i++];if(x==='+')return primary();if(x==='-')return-primary();if(x==='('){const v=sum();if(t[i++]!==')')throw Error('Missing )');return v;}if(!x||!/^\d*\.?\d+$/.test(x))throw Error('Expected number');return Number(x);}
+  function product(){let v=primary();while(t[i]==='*'||t[i]==='/'){const op=t[i++],r=primary();if(op==='/'&&r===0)throw Error('Division by zero');v=op==='*'?v*r:v/r;}return v;}
+  function sum(){let v=product();while(t[i]==='+'||t[i]==='-'){const op=t[i++],r=product();v=op==='+'?v+r:v-r;}return v;}
+  if(!t.length)throw Error('Empty expression');const result=sum();if(i!==t.length||!Number.isFinite(result))throw Error('Invalid expression');return result;
+}
+function drawExpression(){$('mathCalcDisplay').textContent=expression||'0';}
+function calculate(){try{const answer=evaluate(expression);$('mathCalcHistory').textContent=`${expression} =`;expression=String(Number(answer.toPrecision(12)));justCalculated=true;drawExpression();}catch{$('mathCalcHistory').textContent=lang==='en'?'Invalid calculation':'Geçersiz işlem';}}
+document.querySelectorAll('.math-btn').forEach(button=>button.addEventListener('click',()=>{
+  const action=button.dataset.action;
+  if(action==='clear'){expression='';justCalculated=false;$('mathCalcHistory').textContent='';}
+  else if(action==='backspace'){expression=expression.slice(0,-1);justCalculated=false;}
+  else if(action==='equals'){calculate();return;}
+  else if(button.dataset.val){if(justCalculated&&/[\d.(]/.test(button.dataset.val))expression='';expression+=button.dataset.val;justCalculated=false;}
+  drawExpression();
+}));
+document.addEventListener('keydown',event=>{
+  if(event.target instanceof HTMLInputElement||event.target instanceof HTMLTextAreaElement)return;
+  if(/^[0-9.+\-*/()]$/.test(event.key)){if(justCalculated&&/[\d.(]/.test(event.key))expression='';expression+=event.key;justCalculated=false;drawExpression();}
+  else if(event.key==='Enter'||event.key==='='){event.preventDefault();calculate();}
+  else if(event.key==='Backspace'){expression=expression.slice(0,-1);justCalculated=false;drawExpression();}
+  else if(event.key==='Escape'){expression='';$('mathCalcHistory').textContent='';drawExpression();}
+});
+function renderCalendar(){
+  const y=month.getFullYear(),m=month.getMonth(),grid=$('calGrid');$('calLabel').textContent=new Intl.DateTimeFormat(locales[lang],{month:'long',year:'numeric'}).format(month);grid.replaceChildren();
+  const offset=(new Date(y,m,1).getDay()+6)%7,days=new Date(y,m+1,0).getDate(),today=localDateTime(new Date()).slice(0,10);
+  for(let i=0;i<offset;i++){const blank=document.createElement('div');blank.className='cal-day empty';grid.appendChild(blank);}
+  for(let day=1;day<=days;day++){
+    const date=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,button=document.createElement('button');
+    button.type='button';button.className=`cal-day${date===today?' today':''}`;button.setAttribute('aria-label',new Intl.DateTimeFormat(locales[lang],{dateStyle:'full'}).format(new Date(y,m,day)));
+    const label=document.createElement('span');label.textContent=day;button.appendChild(label);
+    if(Object.values(notes).some(note=>note.date===date)){const dot=document.createElement('span');dot.className='mt-auto mx-auto w-1.5 h-1.5 rounded-full bg-brand-accent';button.appendChild(dot);}
+    button.addEventListener('click',()=>agendaForDate(date));grid.appendChild(button);
+  }
+}
+$('calPrev').addEventListener('click',()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);renderCalendar();});
+$('calNext').addEventListener('click',()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);renderCalendar();});
+function noteMeta(text){$('noteMeta').textContent=text;}
+function saveNotes(){
+  if(!storageAvailable)return false;
+  try{localStorage.setItem('chronos-agenda-v1',JSON.stringify(notes));renderCalendar();return true;}
+  catch(error){storageAvailable=false;noteMeta(lang==='en'?'Could not save notes in this browser.':'Notlar bu tarayıcıya kaydedilemedi.');console.error('Chronos agenda could not be saved:',error);return false;}
+}
+function renderNotes(){
+  const list=$('notesList');list.replaceChildren();
+  Object.entries(notes).sort((a,b)=>(b[1].updatedAt||0)-(a[1].updatedAt||0)).forEach(([id,note])=>{
+    const button=document.createElement('button');button.type='button';button.className=`w-full text-left rounded-lg px-2 py-2 text-xs ${id===selectedNote?'bg-gray-800 text-brand-accent':'text-gray-300 hover:bg-gray-800/60'}`;
+    const title=document.createElement('span');title.className='block font-semibold truncate';title.textContent=note.title||(lang==='en'?'Untitled note':'Başlıksız not');
+    const date=document.createElement('span');date.className='block text-[10px] text-gray-500 mt-1';date.textContent=note.date||'';button.append(title,date);button.addEventListener('click',()=>selectNote(id));list.appendChild(button);
+  });
+}
+function persistNote(){
+  if(!selectedNote||!notes[selectedNote])return true;
+  Object.assign(notes[selectedNote],{title:$('noteTitle').value,content:$('noteContent').value,date:$('noteDate').value,updatedAt:Date.now()});
+  const ok=saveNotes();renderNotes();if(ok)noteMeta(lang==='en'?'Saved':'Kaydedildi');return ok;
+}
+function selectNote(id){if(saveTimer)clearTimeout(saveTimer);persistNote();selectedNote=id;const note=notes[id];$('noteTitle').value=note.title||'';$('noteContent').value=note.content||'';$('noteDate').value=note.date||'';noteMeta(lang==='en'?'Saved':'Kaydedildi');renderNotes();}
+function createNote(date=localDateTime(new Date()).slice(0,10)){
+  if(saveTimer)clearTimeout(saveTimer);persistNote();
+  const id=window.crypto&&window.crypto.randomUUID?window.crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  notes[id]={title:'',content:'',date,updatedAt:Date.now()};selectedNote=id;$('noteTitle').value='';$('noteContent').value='';$('noteDate').value=date;$('noteTitle').focus();noteMeta(lang==='en'?'Unsaved changes':'Kaydedilmedi');saveNotes();renderNotes();
+}
+function agendaForDate(date){showPanel('agenda');const match=Object.entries(notes).find(([,note])=>note.date===date);if(match)selectNote(match[0]);else createNote(date);}
+function scheduleNoteSave(){noteMeta(lang==='en'?'Unsaved changes':'Kaydedilmedi');if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(()=>{persistNote();saveTimer=null;},300);}
+$('btnNewNote').addEventListener('click',()=>createNote());
+$('btnDelete').addEventListener('click',()=>{
+  if(!selectedNote||!notes[selectedNote])return;if(!confirm(lang==='en'?'Delete this note?':'Bu not silinsin mi?'))return;
+  delete notes[selectedNote];selectedNote=null;$('noteTitle').value='';$('noteContent').value='';$('noteDate').value='';saveNotes();renderNotes();noteMeta(lang==='en'?'Note deleted':'Not silindi');
+});
+['noteTitle','noteContent','noteDate'].forEach(id=>$(id).addEventListener('input',scheduleNoteSave));$('noteDate').addEventListener('change',renderCalendar);
+try{const stored=localStorage.getItem('chronos-agenda-v1');if(stored){const parsed=JSON.parse(stored);if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw Error('Invalid saved agenda data');notes=parsed;}}
+catch(error){storageAvailable=false;noteMeta(lang==='en'?'Could not load notes from this browser.':'Notlar bu tarayıcıdan okunamadı.');console.error('Chronos agenda could not be loaded:',error);}
+renderNotes();renderCalendar();
+const names={USD:'US Dollar',EUR:'Euro',TRY:'Turkish Lira',GBP:'British Pound',JPY:'Japanese Yen',CHF:'Swiss Franc',CAD:'Canadian Dollar',AUD:'Australian Dollar',CNY:'Chinese Yuan',INR:'Indian Rupee',SAR:'Saudi Riyal',AED:'UAE Dirham',RUB:'Russian Ruble',KRW:'South Korean Won',BRL:'Brazilian Real',MXN:'Mexican Peso',SEK:'Swedish Krona',NOK:'Norwegian Krone',DKK:'Danish Krone',PLN:'Polish Zloty',NZD:'New Zealand Dollar',SGD:'Singapore Dollar',ZAR:'South African Rand',IDR:'Indonesian Rupiah'};
+function currencyName(code){try{return new Intl.DisplayNames([locales[lang]],{type:'currency'}).of(code)||names[code]||code;}catch{return names[code]||code;}}
+function money(value,code){try{return new Intl.NumberFormat(locales[lang],{style:'currency',currency:code,maximumFractionDigits:2}).format(value);}catch{return `${fmt(value)} ${code}`;}}
+function fillCurrencyOptions(){
+  const codes=Object.keys(rates).sort();
+  ['fromCurrency','toCurrency'].forEach(id=>{const select=$(id),old=select.value;select.replaceChildren();codes.forEach(code=>{const option=document.createElement('option');option.value=code;option.textContent=`${code} — ${currencyName(code)}`;select.appendChild(option);});select.value=codes.includes(old)?old:'';});
+  if(!$('fromCurrency').value)$('fromCurrency').value=codes.includes('USD')?'USD':codes[0]||'';
+  if(!$('toCurrency').value)$('toCurrency').value=codes.includes('TRY')?'TRY':codes[1]||codes[0]||'';
+}
+function updateCurrency(){
+  if(!rates)return;const amount=Number($('amountInput').value),from=$('fromCurrency').value,to=$('toCurrency').value;
+  if(!Number.isFinite(amount)||amount<0||!rates[from]||!rates[to]){$('resultValue').textContent='—';$('timestampText').textContent=lang==='en'?'Enter a valid amount to convert.':'Dönüştürmek için geçerli bir tutar girin.';return;}
+  const rate=rates[to]/rates[from];$('baseAmountLabel').textContent=money(amount,from);$('resultValue').textContent=money(amount*rate,to);$('targetCurrencyName').textContent=currencyName(to).toLocaleUpperCase(locales[lang]);
+  function rateLine(id,value,code,base){const span=document.createElement('span');span.className='text-brand-accent';span.textContent=money(value,code);$(id).replaceChildren(document.createTextNode(`${money(1,base)} = `),span);}
+  rateLine('rateDirect',rate,to,from);rateLine('rateInverse',1/rate,from,to);
+  $('otherCurrenciesTitle').textContent=`${money(amount,from)} ${lang==='en'?'IN OTHER CURRENCIES':'DİĞER PARA BİRİMLERİNDE'}`;
+  const grid=$('popularCurrenciesGrid');grid.replaceChildren();
+  ['USD','EUR','GBP','JPY','CHF','CAD','AUD','TRY'].filter(code=>code!==from&&rates[code]).forEach(code=>{
+    const card=document.createElement('div');card.className='bg-brand-innerCard border border-gray-800 rounded-xl p-3';
+    const name=document.createElement('div');name.className='text-[10px] text-gray-400 uppercase truncate';name.textContent=currencyName(code);
+    const value=document.createElement('div');value.className='font-bold text-white mt-1';value.textContent=money(amount*rates[code]/rates[from],code);card.append(name,value);grid.appendChild(card);
+  });
+  const date=ratesDate?new Intl.DateTimeFormat(locales[lang],{dateStyle:'medium',timeStyle:'short'}).format(ratesDate):'';
+  $('timestampText').textContent=`${lang==='en'?'Rates updated':'Kurlar güncellendi'}: ${date}`;
+}
+async function loadRates(){
+  $('timestampText').textContent=lang==='en'?'Loading exchange rates…':'Döviz kurları yükleniyor…';
+  try{
+    const response=await fetch('https://open.er-api.com/v6/latest/USD');if(!response.ok)throw Error(`Exchange-rate service returned ${response.status}`);
+    const data=await response.json();if(data.result!=='success'||!data.rates||typeof data.rates!=='object')throw Error('Invalid exchange-rate response');
+    rates=data.rates;ratesDate=data.time_last_update_utc?new Date(data.time_last_update_utc):new Date();fillCurrencyOptions();updateCurrency();
+  }catch(error){$('timestampText').textContent=lang==='en'?'Exchange rates could not be loaded. Check your connection and try again.':'Döviz kurları yüklenemedi. İnternet bağlantınızı kontrol edip yeniden deneyin.';$('resultValue').textContent='—';$('popularCurrenciesGrid').replaceChildren();console.error('Chronos exchange rates could not be loaded:',error);}
+}
+['amountInput','fromCurrency','toCurrency'].forEach(id=>$(id).addEventListener('input',updateCurrency));
+['fromCurrency','toCurrency'].forEach(id=>$(id).addEventListener('change',updateCurrency));
+$('swapBtn').addEventListener('click',()=>{const from=$('fromCurrency').value;$('fromCurrency').value=$('toCurrency').value;$('toCurrency').value=from;updateCurrency();});
+setLanguage('tr');loadRates();
+})();
+</script>
+</body>
+</html>
