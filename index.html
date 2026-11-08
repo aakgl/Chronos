@@ -2,20 +2,25 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<!-- FIX: zoom lock removed (accessibility), viewport-fit=cover added for notched devices -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Chronos">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0A0A0F">
+<meta name="color-scheme" content="dark">
 <title>Chronos • Zaman, Ajanda & Takvim</title>
 
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='none' stroke='%2300D2FF' stroke-width='2'/><circle cx='50' cy='50' r='2.5' fill='%2300D2FF'/><line x1='50' y1='50' x2='50' y2='28' stroke='%2300D2FF' stroke-width='3' stroke-linecap='round'/><line x1='50' y1='50' x2='68' y2='42' stroke='%2300D2FF' stroke-width='2' stroke-linecap='round'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230A0A0F'/%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%2300D2FF' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='2.5' fill='%2300D2FF'/%3E%3Cline x1='50' y1='50' x2='50' y2='28' stroke='%2300D2FF' stroke-width='3' stroke-linecap='round'/%3E%3Cline x1='50' y1='50' x2='68' y2='42' stroke='%2300D2FF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 
-<link rel="manifest" href="manifest.json">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/index.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.8/index.css">
+<!-- FIX: load the actual weights used (index.css only ships 400, so 500/600/700 were faux-bold and sized wrong) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.8/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.8/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.8/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.8/700.css">
 
 <style>
 :root{
@@ -33,7 +38,7 @@
 
 --text-primary: #F0F0F5;
 --text-secondary: #8A8A9E;
---text-tertiary: #5A5A6E;
+--text-tertiary: #6A6A7E;
 
 --radius-sm: 8px;
 --radius-md: 14px;
@@ -42,28 +47,61 @@
 --shadow-glow: 0 0 30px rgba(0, 210, 255, 0.12);
 --shadow-card: 0 24px 64px rgba(0, 0, 0, 0.5);
 
---safe-top: env(safe-area-inset-top);
---safe-bottom: env(safe-area-inset-bottom);
+--safe-top: env(safe-area-inset-top, 0px);
+--safe-bottom: env(safe-area-inset-bottom, 0px);
+--safe-left: env(safe-area-inset-left, 0px);
+--safe-right: env(safe-area-inset-right, 0px);
 
---font-display: 'Space Grotesk', 'Inter', sans-serif;
---font-body: 'Inter', system-ui, sans-serif;
+--font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+--font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{
+height:100%;
+-webkit-text-size-adjust:100%;
+text-size-adjust:100%;           /* FIX: stops iOS/Android landscape text inflation */
+}
 body{
 font-family: var(--font-body);
 color: var(--text-primary);
-background: var(--bg-base);
+background-color: var(--bg-base);
 background-image:
 radial-gradient(ellipse 80% 50% at 50% -20%, rgba(108, 92, 231, 0.15), transparent),
 radial-gradient(ellipse 60% 40% at 100% 100%, rgba(0, 210, 255, 0.06), transparent);
+background-attachment: fixed;
 min-height:100vh;
-padding: calc(32px + var(--safe-top)) 20px calc(32px + var(--safe-bottom));
+min-height:100dvh;               /* FIX: mobile browser toolbars no longer break 100vh */
+padding:
+calc(32px + var(--safe-top))
+calc(20px + var(--safe-right))
+calc(32px + var(--safe-bottom))
+calc(20px + var(--safe-left));
 overflow-x:hidden;
 -webkit-tap-highlight-color: transparent;
+-webkit-font-smoothing: antialiased;
 }
-.container{max-width:1100px;margin:0 auto;}
+.container{max-width:1100px;margin:0 auto;width:100%;}
+
+/* FIX: consistent form-control rendering across iOS/Android/desktop */
+button,input,textarea{font:inherit;color:inherit;}
+button{-webkit-appearance:none;appearance:none;touch-action:manipulation;}
+input,textarea{-webkit-appearance:none;appearance:none;border-radius:0;min-width:0;max-width:100%;}
+input[type="date"],input[type="time"],input[type="datetime-local"]{
+-webkit-appearance:none;appearance:none;
+min-height:44px;                 /* FIX: iOS collapses empty date inputs */
+color-scheme:dark;
+}
+input::-webkit-date-and-time-value{text-align:left;min-height:1.2em;}
+
+/* FIX: visible, consistent keyboard focus outlines */
+:focus{outline:none;}
+:focus-visible{
+outline:2px solid var(--accent-cyan);
+outline-offset:2px;
+}
+.note-editor input[type="text"]:focus-visible,
+.note-editor textarea:focus-visible{outline:none;}
 
 header{ text-align:center; margin-bottom: 48px; }
 .logo-wrap{
@@ -71,13 +109,13 @@ display:flex; align-items:center; justify-content:center;
 gap:16px; margin-bottom:8px;
 }
 .logo-svg{
-width:52px; height:52px;
+width:52px; height:52px; flex-shrink:0;
 filter: drop-shadow(0 0 20px rgba(0, 210, 255, 0.25));
 }
 header h1{
 font-family: var(--font-display);
-font-size:2.8rem; font-weight:700;
-letter-spacing: 6px;
+font-size:clamp(1.8rem, 7vw, 2.8rem); font-weight:700;
+letter-spacing: clamp(3px, 1.2vw, 6px);
 background: linear-gradient(135deg, #FFFFFF 20%, var(--accent-cyan) 80%);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
@@ -104,21 +142,24 @@ border: 1px solid var(--border-subtle);
 border-radius: var(--radius-pill);
 padding: 5px;
 width: fit-content;
+max-width:100%;
 margin-left: auto; margin-right: auto;
-backdrop-filter: blur(16px);
 -webkit-backdrop-filter: blur(16px);
+backdrop-filter: blur(16px);
 }
 .app-tab{
 padding:10px 24px;
+min-height:44px;
 border-radius: var(--radius-pill);
 color: var(--text-secondary);
 cursor:pointer; font-weight:500;
 font-size:0.85rem; letter-spacing:0.5px;
 transition: all 0.25s ease;
-user-select:none;
+user-select:none; -webkit-user-select:none;
 border: none;
 background: transparent;
 font-family: inherit;
+white-space:nowrap;
 }
 .app-tab:hover{ color: var(--text-primary); }
 .app-tab.active{
@@ -136,7 +177,7 @@ to{opacity:1; transform: translateY(0);}
 
 .unit-tabs{
 display:grid;
-grid-template-columns: repeat(6,1fr);
+grid-template-columns: repeat(6,minmax(0,1fr));   /* FIX: minmax(0) prevents grid blowout */
 gap:6px; margin-bottom:24px;
 }
 .unit-tab{
@@ -148,6 +189,9 @@ color: var(--text-secondary);
 cursor:pointer; text-align:center;
 font-size:0.8rem; font-weight:500;
 transition: all 0.2s ease;
+user-select:none; -webkit-user-select:none;
+min-width:0;
+overflow:hidden; text-overflow:ellipsis;
 }
 .unit-tab:hover{
 background: var(--bg-glass-hover);
@@ -166,9 +210,14 @@ background: var(--bg-glass);
 border: 1px solid var(--border-subtle);
 border-radius: var(--radius-lg);
 padding: 32px;
-backdrop-filter: blur(24px);
 -webkit-backdrop-filter: blur(24px);
+backdrop-filter: blur(24px);
 box-shadow: var(--shadow-card);
+min-width:0;
+}
+/* FIX: fallback when backdrop-filter is unsupported */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
+.calc-card, .calendar-card, .agenda-sidebar, .note-editor, .app-tabs{background: rgba(18,18,26,0.92);}
 }
 .calc-title{
 font-family: var(--font-display);
@@ -184,9 +233,10 @@ font-weight:400;
 }
 .date-row{
 display:grid;
-grid-template-columns: 1fr 1fr;
+grid-template-columns: minmax(0,1fr) minmax(0,1fr);
 gap:16px; margin-bottom:24px;
 }
+.field{min-width:0;}
 .field label{
 display:block; font-size:0.7rem;
 text-transform:uppercase; letter-spacing:1.5px;
@@ -194,6 +244,7 @@ color: var(--text-tertiary);
 margin-bottom:8px; font-weight:600;
 }
 .field input{
+display:block;
 width:100%; padding:14px 16px;
 background: rgba(0, 0, 0, 0.3);
 border: 1px solid var(--border-subtle);
@@ -215,20 +266,22 @@ cursor:pointer;
 .btn-swap{
 display:block; margin:0 auto 24px;
 padding:10px 24px;
+min-height:44px;
 background: transparent;
 border: 1px solid var(--border-strong);
 border-radius: var(--radius-pill);
 color: var(--text-secondary);
 cursor:pointer; font-size:0.8rem;
 font-family: inherit;
-transition: all 0.2s ease;
+transition: color 0.2s ease, border-color 0.2s ease;
 letter-spacing:0.5px;
 }
-.btn-swap:hover{
-color: var(--accent-cyan);
-border-color: var(--accent-cyan);
-transform: rotate(180deg);
+/* FIX: hover styles only on devices that really hover (no sticky hover on touch);
+   the 180deg rotation flipped the label upside-down, so it's removed */
+@media (hover:hover){
+.btn-swap:hover{ color: var(--accent-cyan); border-color: var(--accent-cyan); }
 }
+.btn-swap:active{ color: var(--accent-cyan); border-color: var(--accent-cyan); }
 
 .result{
 background: linear-gradient(135deg, rgba(0, 210, 255, 0.06), rgba(108, 92, 231, 0.03));
@@ -244,12 +297,13 @@ margin-bottom:12px; font-weight:600;
 }
 .result-value{
 font-family: var(--font-display);
-font-size:3.2rem; font-weight:700;
+font-size:clamp(1.8rem, 9vw, 3.2rem); font-weight:700;   /* FIX: fluid size, long numbers no longer overflow */
 background: linear-gradient(135deg, #FFFFFF 30%, var(--accent-cyan));
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 background-clip:text;
-line-height:1.1;
+line-height:1.15;
+overflow-wrap:anywhere;
 word-break:break-word;
 letter-spacing: -1px;
 }
@@ -262,13 +316,14 @@ font-weight:500;
 .result-details{
 margin-top:24px; padding-top:24px;
 border-top: 1px solid var(--border-subtle);
-display:grid; grid-template-columns: repeat(3,1fr);
+display:grid; grid-template-columns: repeat(3,minmax(0,1fr));
 gap:12px; font-size:0.8rem;
 }
-.detail-item{ text-align:center; }
+.detail-item{ text-align:center; min-width:0; }
 .detail-item .num{
 font-size:1.2rem; color: var(--accent-cyan);
 font-weight:600; font-family: var(--font-display);
+overflow-wrap:anywhere;
 }
 .detail-item .lbl{
 color: var(--text-tertiary);
@@ -278,25 +333,27 @@ font-weight:600;
 }
 
 .cal-header{
-display:flex; justify-content:space-between;
-align-items:center; margin-bottom:24px;
+display:grid;
+grid-template-columns: 1fr auto 1fr;    /* FIX: replaces the fixed 120px spacer that caused horizontal overflow */
+align-items:center; gap:8px; margin-bottom:24px;
 }
 .cal-title{
 font-family: var(--font-display);
 font-size:1.6rem; font-weight:600;
 color: #FFFFFF;
 text-transform:capitalize;
-min-width:220px; text-align:center;
+text-align:center;
 letter-spacing: -0.5px;
+grid-column:2; grid-row:1;
 }
-.cal-nav{ display:flex; gap:8px; align-items:center; }
+.cal-nav{ display:flex; gap:8px; align-items:center; grid-column:1; grid-row:1; }
 .cal-btn{
-width:36px; height:36px;
+width:40px; height:40px; flex-shrink:0;
 background: var(--bg-glass);
 border: 1px solid var(--border-subtle);
 border-radius: 50%;
 color: var(--text-secondary);
-cursor:pointer; font-size:0.9rem;
+cursor:pointer; font-size:1rem;
 transition: all 0.2s ease;
 display:flex; align-items:center; justify-content:center;
 }
@@ -306,7 +363,7 @@ border-color: var(--accent-cyan);
 background: rgba(0, 210, 255, 0.06);
 }
 .cal-today-btn{
-padding:7px 16px;
+padding:8px 16px; min-height:40px;
 background: transparent;
 border: 1px solid var(--border-subtle);
 border-radius: var(--radius-pill);
@@ -322,7 +379,7 @@ border-color: var(--accent-cyan);
 
 .cal-weekdays{
 display:grid;
-grid-template-columns: repeat(7,1fr);
+grid-template-columns: repeat(7,minmax(0,1fr));
 gap:4px; margin-bottom:8px;
 }
 .cal-weekday{
@@ -333,11 +390,12 @@ padding:8px 0; font-weight:600;
 }
 .cal-grid{
 display:grid;
-grid-template-columns: repeat(7,1fr);
+grid-template-columns: repeat(7,minmax(0,1fr));
 gap:4px;
 }
 .cal-day{
 aspect-ratio: 1/1;
+min-height:0; min-width:0;
 background: rgba(0, 0, 0, 0.2);
 border: 1px solid transparent;
 border-radius: var(--radius-sm);
@@ -345,12 +403,13 @@ padding:6px; cursor:pointer;
 transition: all 0.2s ease;
 display:flex; flex-direction:column;
 position:relative;
+overflow:hidden;
 }
 .cal-day:hover{
 border-color: var(--border-strong);
 background: var(--bg-glass-hover);
 }
-.cal-day.other-month{ opacity:0.25; }
+.cal-day.other-month{ opacity:0.35; }
 .cal-day.today{
 border-color: var(--accent-cyan);
 background: rgba(0, 210, 255, 0.05);
@@ -393,20 +452,23 @@ gap:8px; margin-bottom:12px;
 }
 .cal-event-item{
 display:flex; justify-content:space-between;
-align-items:center; padding:10px 14px;
+align-items:center; gap:8px; padding:10px 14px;
 background: rgba(0, 0, 0, 0.25);
 border: 1px solid var(--border-subtle);
 border-radius: var(--radius-sm);
 transition: all 0.2s ease;
 }
+.cal-event-info{min-width:0; flex:1;}
 .cal-event-item:hover{ border-color: var(--accent-cyan); }
-.cal-event-title{ font-weight:500; font-size:0.85rem; margin-bottom:2px; }
+.cal-event-title{ font-weight:500; font-size:0.85rem; margin-bottom:2px; overflow-wrap:anywhere; }
 .cal-event-time{ font-size:0.7rem; color: var(--text-secondary); letter-spacing:0.5px; }
 .cal-event-del{
 background: transparent; border: none;
 color: var(--text-tertiary);
 cursor:pointer; font-size:0.9rem;
+min-width:36px; min-height:36px;
 padding:4px 8px; transition: all 0.2s ease;
+flex-shrink:0;
 }
 .cal-event-del:hover{ color: var(--accent-rose); }
 .cal-empty{
@@ -417,11 +479,12 @@ text-align:center; padding:8px;
 
 .cal-add-form{
 display:grid;
-grid-template-columns: 1fr 100px auto;
+grid-template-columns: minmax(0,1fr) 110px auto;
 gap:8px; margin-top:12px;
 }
 .cal-add-form input{
-padding:10px 14px;
+width:100%;
+padding:10px 14px; min-height:44px;
 background: rgba(0, 0, 0, 0.3);
 border: 1px solid var(--border-subtle);
 border-radius: var(--radius-sm);
@@ -439,7 +502,7 @@ filter: invert(0.6) sepia(1) saturate(5) hue-rotate(160deg);
 cursor:pointer;
 }
 .btn-add-event{
-padding:10px 18px;
+padding:10px 18px; min-height:44px;
 background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
 color: #0A0A0F;
 border: none; border-radius: var(--radius-sm);
@@ -448,15 +511,18 @@ font-size:0.8rem; font-family: inherit;
 transition: all 0.2s ease;
 letter-spacing:0.3px;
 }
+@media (hover:hover){
 .btn-add-event:hover{
 transform: translateY(-1px);
 box-shadow: 0 6px 20px rgba(0, 210, 255, 0.25);
 }
+}
 
 .agenda-layout{
 display:grid;
-grid-template-columns: 320px 1fr;
+grid-template-columns: 320px minmax(0,1fr);
 gap:16px;
+align-items:start;
 }
 .agenda-sidebar{
 padding:20px;
@@ -473,7 +539,7 @@ color: #FFFFFF; font-size:1.1rem;
 font-weight:600;
 }
 .btn-new{
-padding:7px 14px;
+padding:8px 14px; min-height:40px;
 background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
 color: #0A0A0F;
 border: none; border-radius: var(--radius-sm);
@@ -481,13 +547,15 @@ cursor:pointer; font-weight:600;
 font-size:0.8rem; font-family: inherit;
 transition: all 0.2s ease;
 }
+@media (hover:hover){
 .btn-new:hover{
 transform: translateY(-1px);
 box-shadow: 0 4px 16px rgba(0, 210, 255, 0.2);
 }
+}
 
 .agenda-search{
-width:100%; padding:10px 14px;
+width:100%; padding:10px 14px; min-height:44px;
 background: rgba(0, 0, 0, 0.3);
 border: 1px solid var(--border-subtle);
 border-radius: var(--radius-sm);
@@ -502,6 +570,9 @@ transition: all 0.2s ease;
 .agenda-list{
 overflow-y:auto; flex:1;
 padding-right:4px;
+-webkit-overflow-scrolling:touch;
+overscroll-behavior:contain;
+min-height:0;
 }
 .agenda-list::-webkit-scrollbar{ width:4px; }
 .agenda-list::-webkit-scrollbar-track{ background:transparent; }
@@ -542,7 +613,7 @@ white-space:nowrap; overflow:hidden;
 text-overflow:ellipsis;
 }
 .agenda-item-meta{
-display:flex; justify-content:space-between;
+display:flex; justify-content:space-between; gap:8px;
 font-size:0.65rem; color: var(--text-tertiary);
 }
 .agenda-empty{
@@ -556,7 +627,8 @@ display:flex; flex-direction:column;
 }
 .editor-top{
 display:flex; justify-content:space-between;
-align-items:center; margin-bottom:14px;
+align-items:center; gap:12px; flex-wrap:wrap;
+margin-bottom:14px;
 padding-bottom:14px;
 border-bottom: 1px solid var(--border-subtle);
 }
@@ -580,6 +652,7 @@ cursor:pointer;
 }
 
 .note-editor input[type="text"]{
+display:block; width:100%;
 background: transparent; border: none;
 color: var(--text-primary);
 font-family: var(--font-display);
@@ -589,9 +662,10 @@ border-bottom: 1px solid var(--border-subtle);
 margin-bottom:14px;
 letter-spacing: -0.5px;
 }
-.note-editor input[type="text"]:focus{ outline:none; }
+.note-editor input[type="text"]:focus{ outline:none; border-bottom-color: var(--accent-cyan); }
 .note-editor input[type="text"]::placeholder{ color: var(--text-tertiary); }
 .note-editor textarea{
+display:block; width:100%;
 flex:1; min-height:320px;
 background: transparent; border: none;
 color: var(--text-primary);
@@ -602,7 +676,7 @@ line-height:1.7; resize:none; padding:0;
 .note-editor textarea::placeholder{ color: var(--text-tertiary); }
 .note-actions{
 display:flex; justify-content:space-between;
-align-items:center; margin-top:16px;
+align-items:center; gap:12px; margin-top:16px;
 padding-top:16px;
 border-top: 1px solid var(--border-subtle);
 }
@@ -611,7 +685,7 @@ font-size:0.7rem; color: var(--text-tertiary);
 letter-spacing:0.5px;
 }
 .btn-delete{
-padding:7px 14px;
+padding:8px 14px; min-height:40px;
 background: transparent;
 border: 1px solid rgba(255, 107, 139, 0.25);
 color: var(--accent-rose);
@@ -619,6 +693,7 @@ border-radius: var(--radius-sm);
 cursor:pointer; font-size:0.75rem;
 font-family: inherit;
 transition: all 0.2s ease;
+flex-shrink:0;
 }
 .btn-delete:hover{
 background: rgba(255, 107, 139, 0.08);
@@ -631,23 +706,77 @@ color: var(--text-tertiary);
 font-size:0.65rem; letter-spacing:2px;
 }
 
-@media(max-width:900px){
-.agenda-layout{ grid-template-columns: 1fr; }
-.agenda-sidebar{ max-height:320px; }
+/* ---------- Responsive ---------- */
+
+/* Large screens */
+@media (min-width:1400px){
+.container{max-width:1200px;}
 }
+
+/* Tablets */
+@media(max-width:900px){
+.agenda-layout{ grid-template-columns: minmax(0,1fr); }
+.agenda-sidebar{ max-height:340px; }
+}
+
+/* Phones & small tablets */
 @media(max-width:768px){
-header h1{ font-size:2rem; letter-spacing:4px; }
+body{
+padding:
+calc(20px + var(--safe-top))
+calc(14px + var(--safe-right))
+calc(24px + var(--safe-bottom))
+calc(14px + var(--safe-left));
+}
+header{ margin-bottom:32px; }
 .logo-svg{ width:40px; height:40px; }
-.unit-tabs{ grid-template-columns: repeat(3,1fr); }
-.date-row{ grid-template-columns: 1fr; }
+.unit-tabs{ grid-template-columns: repeat(3,minmax(0,1fr)); }
+.date-row{ grid-template-columns: minmax(0,1fr); }
 .calc-card, .calendar-card, .note-editor{ padding:20px; }
-.result-value{ font-size:2.2rem; }
-.result-details{ grid-template-columns: repeat(2,1fr); }
-.cal-add-form{ grid-template-columns: 1fr; }
-.cal-title{ font-size:1.2rem; min-width:auto; }
+.result{ padding:24px 16px; }
+.result-details{ grid-template-columns: repeat(3,minmax(0,1fr)); gap:8px; }
+.cal-header{ grid-template-columns: auto 1fr; row-gap:12px; }
+.cal-nav{ grid-column:1 / -1; grid-row:2; justify-content:center; }
+.cal-title{ grid-column:1 / -1; grid-row:1; font-size:1.3rem; }
+.cal-add-form{ grid-template-columns: minmax(0,1fr) 110px; }
+.cal-add-form input[type="text"]{ grid-column:1 / -1; }
+.btn-add-event{ width:100%; }
+.cal-day{ padding:4px; }
 .cal-day-num{ font-size:0.75rem; }
-.app-tabs{ flex-wrap:wrap; width:100%; border-radius: var(--radius-md); }
-.app-tab{ flex:1; text-align:center; padding:10px 12px; font-size:0.75rem; }
+.app-tabs{ width:100%; border-radius: var(--radius-md); }
+.app-tab{ flex:1 1 0; text-align:center; padding:10px 8px; font-size:0.75rem; }
+.note-editor input[type="text"]{ font-size:1.3rem; }
+.note-editor textarea{ min-height:260px; }
+
+/* FIX: iOS Safari zooms the page when a focused field is <16px, which made
+   inputs/outlines pop up at the wrong size. 16px prevents that without
+   having to disable user zoom. */
+input, textarea, select{ font-size:16px !important; }
+.note-editor input[type="text"]{ font-size:1.3rem !important; }
+}
+
+/* Small phones */
+@media(max-width:400px){
+header p{ letter-spacing:2px; }
+.unit-tab{ padding:12px 4px; font-size:0.72rem; }
+.cal-weekday{ letter-spacing:0; font-size:0.6rem; }
+.cal-grid,.cal-weekdays{ gap:2px; }
+.calc-title{ font-size:1.3rem; }
+.cal-selected-info{ padding:14px; }
+.cal-add-form{ grid-template-columns: minmax(0,1fr); }
+.app-tab{ padding:10px 4px; }
+}
+
+/* Short landscape phones */
+@media (max-height:480px) and (orientation:landscape){
+header{ margin-bottom:20px; }
+.note-editor textarea{ min-height:180px; }
+.agenda-sidebar{ max-height:260px; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+*,*::before,*::after{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
 }
 </style>
 </head>
@@ -655,7 +784,7 @@ header h1{ font-size:2rem; letter-spacing:4px; }
 <div class="container">
 <header>
 <div class="logo-wrap">
-<svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <defs>
 <linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
 <stop offset="0%" stop-color="#00D2FF"/>
@@ -709,11 +838,11 @@ header h1{ font-size:2rem; letter-spacing:4px; }
 
 <div class="date-row">
 <div class="field">
-<label>Başlangıç Tarihi</label>
+<label for="dateStart">Başlangıç Tarihi</label>
 <input type="datetime-local" id="dateStart">
 </div>
 <div class="field">
-<label>Bitiş Tarihi</label>
+<label for="dateEnd">Bitiş Tarihi</label>
 <input type="datetime-local" id="dateEnd">
 </div>
 </div>
@@ -737,12 +866,11 @@ header h1{ font-size:2rem; letter-spacing:4px; }
 <div class="calendar-card">
 <div class="cal-header">
 <div class="cal-nav">
-<button class="cal-btn" id="calPrev">‹</button>
+<button class="cal-btn" id="calPrev" aria-label="Önceki ay">‹</button>
 <button class="cal-today-btn" id="calToday">Bugün</button>
-<button class="cal-btn" id="calNext">›</button>
+<button class="cal-btn" id="calNext" aria-label="Sonraki ay">›</button>
 </div>
 <div class="cal-title" id="calTitle">—</div>
-<div style="width:120px;"></div>
 </div>
 
 <div class="cal-weekdays">
@@ -763,8 +891,8 @@ header h1{ font-size:2rem; letter-spacing:4px; }
 <div class="cal-empty">Bu gün için etkinlik yok.</div>
 </div>
 <div class="cal-add-form">
-<input type="text" id="calEventTitle" placeholder="Etkinlik başlığı...">
-<input type="time" id="calEventTime" value="09:00">
+<input type="text" id="calEventTitle" placeholder="Etkinlik başlığı..." aria-label="Etkinlik başlığı">
+<input type="time" id="calEventTime" value="09:00" aria-label="Saat">
 <button class="btn-add-event" id="btnAddEvent">+ Ekle</button>
 </div>
 </div>
@@ -778,16 +906,16 @@ header h1{ font-size:2rem; letter-spacing:4px; }
 <h3>Ajandam</h3>
 <button class="btn-new" id="btnNewNote">+ Yeni</button>
 </div>
-<input type="text" class="agenda-search" id="agendaSearch" placeholder="🔍 Notlarda ara...">
+<input type="text" class="agenda-search" id="agendaSearch" placeholder="🔍 Notlarda ara..." aria-label="Notlarda ara">
 <div class="agenda-list" id="notesList"></div>
 </aside>
 <section class="note-editor">
 <div class="editor-top">
 <div class="editor-date" id="editorDate">—</div>
-<input type="date" class="editor-date-input" id="noteDate">
+<input type="date" class="editor-date-input" id="noteDate" aria-label="Not tarihi">
 </div>
-<input type="text" id="noteTitle" placeholder="Başlık...">
-<textarea id="noteContent" placeholder="Düşüncelerinizi buraya yazın..."></textarea>
+<input type="text" id="noteTitle" placeholder="Başlık..." aria-label="Not başlığı">
+<textarea id="noteContent" placeholder="Düşüncelerinizi buraya yazın..." aria-label="Not içeriği"></textarea>
 <div class="note-actions">
 <div class="note-meta" id="noteMeta">Kaydedilmedi</div>
 <button class="btn-delete" id="btnDelete">Sil</button>
@@ -876,17 +1004,22 @@ return 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
 }
 };
 
+/* FIX: localStorage can throw (private mode / blocked storage on some devices) */
 const Storage = {
 loadNotes(){
 try { state.notes = JSON.parse(localStorage.getItem(CONFIG.STORAGE_NOTES) || '[]'); }
 catch(e){ state.notes = []; }
 },
-saveNotes(){ localStorage.setItem(CONFIG.STORAGE_NOTES, JSON.stringify(state.notes)); },
+saveNotes(){
+try { localStorage.setItem(CONFIG.STORAGE_NOTES, JSON.stringify(state.notes)); } catch(e){}
+},
 loadEvents(){
 try { state.events = JSON.parse(localStorage.getItem(CONFIG.STORAGE_EVENTS) || '{}'); }
 catch(e){ state.events = {}; }
 },
-saveEvents(){ localStorage.setItem(CONFIG.STORAGE_EVENTS, JSON.stringify(state.events)); }
+saveEvents(){
+try { localStorage.setItem(CONFIG.STORAGE_EVENTS, JSON.stringify(state.events)); } catch(e){}
+}
 };
 
 const Tabs = {
@@ -924,8 +1057,12 @@ const nextWeek = new Date(today.getTime() + 7 * CONFIG.TIME.MS_IN_DAY);
 document.getElementById('dateStart').value = Utils.toLocalISOString(today);
 document.getElementById('dateEnd').value = Utils.toLocalISOString(nextWeek);
 
-document.getElementById('dateStart').addEventListener('change', () => this.calculate());
-document.getElementById('dateEnd').addEventListener('change', () => this.calculate());
+/* FIX: 'input' as well as 'change' so mobile pickers update live */
+['dateStart','dateEnd'].forEach(id => {
+const el = document.getElementById(id);
+el.addEventListener('change', () => this.calculate());
+el.addEventListener('input', () => this.calculate());
+});
 document.getElementById('btnSwap').addEventListener('click', () => this.swap());
 this.calculate();
 },
@@ -979,6 +1116,7 @@ const Calendar = {
 init(){
 Storage.loadEvents();
 state.calViewDate = new Date();
+state.calViewDate.setDate(1); /* FIX: avoids month-skipping when today is the 31st */
 state.calSelectedDate = Utils.toDateStr(new Date());
 
 document.getElementById('calPrev').addEventListener('click', () => {
@@ -991,11 +1129,12 @@ this.render();
 });
 document.getElementById('calToday').addEventListener('click', () => {
 state.calViewDate = new Date();
+state.calViewDate.setDate(1);
 state.calSelectedDate = Utils.toDateStr(new Date());
 this.render();
 });
 document.getElementById('btnAddEvent').addEventListener('click', () => this.addEvent());
-document.getElementById('calEventTitle').addEventListener('keypress', (e) => {
+document.getElementById('calEventTitle').addEventListener('keydown', (e) => {
 if (e.key === 'Enter') this.addEvent();
 });
 
@@ -1081,7 +1220,7 @@ list.innerHTML = events.map((ev, idx) => `
 <div class="cal-event-title">${Utils.escapeHtml(ev.title)}</div>
 <div class="cal-event-time">${Utils.escapeHtml(ev.time)}</div>
 </div>
-<button class="cal-event-del" data-idx="${idx}" title="Sil">✕</button>
+<button class="cal-event-del" data-idx="${idx}" title="Sil" aria-label="Etkinliği sil">✕</button>
 </div>
 `).join('');
 
@@ -1157,7 +1296,7 @@ list.innerHTML = '<div class="agenda-empty">' +
 return;
 }
 
-const sorted = filtered.sort((a, b) => {
+const sorted = filtered.slice().sort((a, b) => {
 const dateDiff = (b.date || '').localeCompare(a.date || '');
 if (dateDiff !== 0) return dateDiff;
 return b.updatedAt - a.updatedAt;
@@ -1256,4 +1395,3 @@ Agenda.init();
 </script>
 </body>
 </html>
-
